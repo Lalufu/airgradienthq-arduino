@@ -7,7 +7,83 @@
 #ifndef AirGradient_h
 #define AirGradient_h
 
+// Pin definitions. These are correct for
+// ESP8266: Wemos D1 Lite/Pro and pin compatible
+// ESP32: Wemos C3 Mini/Pico and pin compatible
+//
+// For ESP based boards we default to using hardware RS232
+// for the CO2, and software serial for the PMS sensor.
+// This is because the pin compatible Wemos C3 board uses the
+// ESP32-C3 chip, which only has two hardware UARTs. UART 0 is
+// used for the serial console.
+//
+// The value of CO2_SERIAL_HARDWARE/PMS_SERIAL_HARDWARE specifies
+// the hardware UART to use.
+//
+// Set CO2_SERIAL_HARDWARE amd/or PMS_SERIAL_HARDWARE to
+// -1 if you want to use SoftwareSerial instead.
+//
+// On ESP8266 these are always SoftwareSerial
+#if defined(ESP8266)
+
+#if !defined(PMS_RX)
+#define PMS_RX D5
+#endif
+
+#if !defined(PMS_TX)
+#define PMS_TX D6
+#endif
+
+#if !defined(CO2_RX)
+#define CO2_RX D4
+#endif
+
+#if !defined(CO2_TX)
+#define CO2_TX D3
+#endif
+
+#if !defined(CO2_SERIAL_HARDWARE)
+#define CO2_SERIAL_HARDWARE -1
+#endif
+
+#if !defined(PMS_SERIAL_HARDWARE)
+#define PMS_SERIAL_HARDWARE -1
+#endif
+
+#elif defined(ESP32)
+
+#if !defined(PMS_RX)
+#define PMS_RX A1
+#endif
+
+#if !defined(PMS_TX)
+#define PMS_TX A0
+#endif
+
+#if !defined(CO2_RX)
+#define CO2_RX 6
+#endif
+
+#if !defined(CO2_TX)
+#define CO2_TX 7
+#endif
+
+#if !defined(CO2_SERIAL_HARDWARE)
+#define CO2_SERIAL_HARDWARE 1
+#endif
+
+#if !defined(PMS_SERIAL_HARDWARE)
+#define PMS_SERIAL_HARDWARE -1
+#endif
+
+#else
+#error "No pin definitions known for this board"
+#endif
+
 #include <SoftwareSerial.h>
+#if defined(ESP32)
+#include <HardwareSerial.h>
+#endif
 #include <Print.h>
 #include "Stream.h"
 //MHZ19 CONSTANTS START
@@ -254,7 +330,11 @@ class AirGradient
     void CO2_Init(int,int,int);
     int getCO2(int numberOfSamplesToTake = 5);
     int getCO2_Raw();
-    SoftwareSerial *_SoftSerial_CO2;
+#if CO2_SERIAL_HARDWARE < 0
+    SoftwareSerial *_Serial_CO2;
+#else
+    HardwareSerial *_Serial_CO2;
+#endif
 
     //CO2 VARIABLES PUBLIC END
 
@@ -291,7 +371,11 @@ class AirGradient
     uint16_t _frameLen;
     uint16_t _checksum;
     uint16_t _calculatedChecksum;
-    SoftwareSerial *_SoftSerial_PMS;
+#if PMS_SERIAL_HARDWARE < 0
+    SoftwareSerial *_Serial_PMS;
+#else
+    HardwareSerial *_Serial_PMS;
+#endif
     void loop();
     char Char_PM1[10];
     	char Char_PM2[10];
