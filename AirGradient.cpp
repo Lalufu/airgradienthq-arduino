@@ -443,8 +443,9 @@ TMP_RH AirGradient::periodicFetchData() //
   TMP_RH_ErrorCode error = writeCommand(SHT3XD_CMD_FETCH_DATA);
   if (error == SHT3XD_NO_ERROR){
     result = readTemperatureAndHumidity();
-    sprintf(result.t_char,"%d", result.t);
-    sprintf(result.rh_char,"%f", result.rh);
+    snprintf(result.t_char, sizeof(result.t_char), "%f", result.t);
+    snprintf(result.rh_char, sizeof(result.rh_char), "%d", result.rh);
+    snprintf(result.rh_f_char, sizeof(result.rh_f_char), "%f", result.rh_f);
 
     return result;
   }
@@ -611,6 +612,7 @@ TMP_RH AirGradient::readTemperatureAndHumidity()//
 
   result.t = 0;
   result.rh = 0;
+  result.rh_f = 0;
 
   TMP_RH_ErrorCode error;
   uint16_t buf[2];
@@ -620,7 +622,8 @@ TMP_RH AirGradient::readTemperatureAndHumidity()//
 
   if (error == SHT3XD_NO_ERROR) {
     result.t = calculateTemperature(buf[0]);
-    result.rh = calculateHumidity(buf[1]);
+    result.rh_f = calculateHumidity(buf[1]);
+    result.rh = result.rh_f;
   }
   result.error = error;
 
@@ -691,18 +694,27 @@ uint8_t AirGradient::calculateCrc(uint8_t data[])
 
 TMP_RH AirGradient::returnError(TMP_RH_ErrorCode error) {
   TMP_RH result;
-  result.t = NULL;
-  result.rh = NULL;
+  result.t = 0;
+  result.rh = 0;
+  result.rh_f = 0;
 
   result.t_char[0] = 'N';
   result.t_char[1] = 'U';
   result.t_char[2] = 'L';
   result.t_char[3] = 'L';
+  result.t_char[4] = '\0';
 
   result.rh_char[0] = 'N';
   result.rh_char[1] = 'U';
   result.rh_char[2] = 'L';
   result.rh_char[3] = 'L';
+  result.rh_char[4] = '\0';
+
+  result.rh_f_char[0] = 'N';
+  result.rh_f_char[1] = 'U';
+  result.rh_f_char[2] = 'L';
+  result.rh_f_char[3] = 'L';
+  result.rh_f_char[4] = '\0';
 
   result.error = error;
   return result;

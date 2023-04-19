@@ -210,8 +210,10 @@ typedef enum {
     struct TMP_RH {
       float t;
       int rh;
+      float rh_f;
       char t_char[10];
       char rh_char[10];
+      char rh_f_char[10];
       TMP_RH_ErrorCode error;
     };
     struct TMP_RH_Char {
