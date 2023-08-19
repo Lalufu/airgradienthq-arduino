@@ -649,7 +649,7 @@ uint8_t AirGradient::checkCrc(uint8_t data[], uint8_t checksum)//
 float AirGradient::calculateTemperature(uint16_t rawValue)//
 {
   float value = 175.0f * (float)rawValue / 65535.0f - 45.0f;
-  return round(value*10)/10;
+  return value;
 }
 
 
